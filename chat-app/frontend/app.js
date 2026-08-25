@@ -46,3 +46,6 @@ sendButton.addEventListener("click", async () => {
 
 // Load messages when the page opens
 getMessages();
+
+// Ask the server for messages every 2 seconds
+setInterval(getMessages, 2000);
