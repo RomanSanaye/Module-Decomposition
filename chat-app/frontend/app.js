@@ -17,3 +17,24 @@ async function getMessages() {
     messagesContainer.appendChild(messageElement);
   });
 }
+
+// Send message event:
+sendButton.addEventListener("click", async () => {
+  const text = messageInput.value;
+
+  if (text.trim() === "") {
+    return;
+  }
+
+  await fetch("http://localhost:3002/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ text: text }),
+  });
+
+  messageInput.value = "";
+
+  await getMessages();
+});
