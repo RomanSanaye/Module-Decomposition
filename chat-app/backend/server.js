@@ -10,21 +10,37 @@ app.use(express.json());
 const PORT = process.env.PORT || 3002;
 
 const messages = [];
+const callbacksForNewMessages = [];
 
 // GET all messages
 app.get("/messages", (req, res) => {
-  console.log("Sending messages:", messages);
+  const since = Number(req.query.since);
 
-  res.json(messages);
+  console.log("Client asked for messages since:", since);
+  const newMessages = messages.filter((message) => message.id > since);
+  console.log("Sending messages:", newMessages);
+
+  if (newMessages.length === 0) {
+    callbacksForNewMessages.push((value) => res.json(value));
+  } else {
+    res.json(newMessages);
+  }
 });
 
 // POST a new message
 app.post("/messages", (req, res) => {
-  const message = req.body;
+  const message = {
+    id: messages.length,
+    text: req.body.text,
+  };
 
   console.log("Received message:", message);
 
   messages.push(message);
+  while (callbacksForNewMessages.length > 0) {
+    const callback = callbacksForNewMessages.pop();
+    callback([message]);
+  }
 
   res.status(201).json(message);
 });
