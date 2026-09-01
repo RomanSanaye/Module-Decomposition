@@ -1,18 +1,26 @@
 <!doctype html>
+
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Simple Chat</title>
+    <title>Chat App</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
 
   <body>
-    <h1>Chat</h1>
+    <div class="chat-app">
+      <header class="chat-header">
+        <h1>Chat App</h1>
+      </header>
 
-    <div id="messages"></div>
+      <main id="messages" class="messages"></main>
 
-    <input type="text" id="message-input" placeholder="Message" />
-    <button id="send-button">Send</button>
+      <footer class="chat-input">
+        <input type="text" id="message-input" placeholder="Type a message..." />
+        <button id="send-button">Send</button>
+      </footer>
+    </div>
 
     <script src="app.js"></script>
   </body>
