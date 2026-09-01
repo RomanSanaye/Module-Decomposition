@@ -1,4 +1,4 @@
-// import necessary modules
+// Import necessary modules
 import express from "express";
 import cors from "cors";
 
@@ -12,12 +12,32 @@ const PORT = process.env.PORT || 3002;
 const messages = [];
 const callbacksForNewMessages = [];
 
-// GET all messages
+// Send update to clients waiting for new messages
+function notifyClients(update) {
+  while (callbacksForNewMessages.length > 0) {
+    const callback = callbacksForNewMessages.pop();
+    callback([update]);
+  }
+}
+
+// Validate message
+function isValidMessage(body) {
+  return (
+    typeof body.text === "string" &&
+    body.text.trim() !== "" &&
+    typeof body.clientId === "string" &&
+    body.clientId.trim() !== ""
+  );
+}
+
+// GET messages
 app.get("/messages", (req, res) => {
   const since = Number(req.query.since);
 
   console.log("Client asked for messages since:", since);
+
   const newMessages = messages.filter((message) => message.id > since);
+
   console.log("Sending messages:", newMessages);
 
   if (newMessages.length === 0) {
@@ -29,20 +49,15 @@ app.get("/messages", (req, res) => {
 
 // POST a new message
 app.post("/messages", (req, res) => {
-  // Validate the request body
-  if (
-    typeof req.body.text !== "string" ||
-    req.body.text.trim() === "" ||
-    typeof req.body.user !== "string" ||
-    req.body.user.trim() === ""
-  ) {
-    res.status(400).send("Expected a username and a non-empty text string.");
+  if (!isValidMessage(req.body)) {
+    res.status(400).send("Expected a client ID and a non-empty text string.");
     return;
   }
 
   const message = {
     id: messages.length,
     text: req.body.text.trim(),
+    clientId: req.body.clientId,
     likes: 0,
     dislikes: 0,
   };
@@ -50,14 +65,13 @@ app.post("/messages", (req, res) => {
   console.log("Received message:", message);
 
   messages.push(message);
-  while (callbacksForNewMessages.length > 0) {
-    const callback = callbacksForNewMessages.pop();
-    callback([message]);
-  }
+
+  notifyClients(message);
 
   res.status(201).json(message);
 });
 
+// POST a reaction
 app.post("/messages/:id/reaction", (req, res) => {
   const messageId = Number(req.params.id);
   const reaction = req.body.reaction;
@@ -83,20 +97,15 @@ app.post("/messages/:id/reaction", (req, res) => {
   const update = {
     type: "reaction",
     messageId: message.id,
-    text: req.body.text,
-    user: req.body.user,
     likes: message.likes,
     dislikes: message.dislikes,
   };
 
-  while (callbacksForNewMessages.length > 0) {
-    const callback = callbacksForNewMessages.pop();
-    callback([update]);
-  }
+  notifyClients(update);
 
   res.json(message);
 });
 
 app.listen(PORT, () => {
-  console.log(`server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
