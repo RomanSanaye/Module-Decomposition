@@ -4,7 +4,12 @@ const messageInput = document.getElementById("message-input");
 const sendButton = document.getElementById("send-button");
 
 let lastMessageId = -1;
-const clientId = crypto.randomUUID();
+let clientId = localStorage.getItem("clientId");
+
+if (!clientId) {
+  clientId = crypto.randomUUID();
+  localStorage.setItem("clientId", clientId);
+}
 
 // Create reactions area
 function createReactionsElement(message) {
