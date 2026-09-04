@@ -12,7 +12,7 @@ function logger(req, res, next) {
 // second middleware: add message to the request;
 function addMessage(req, res, next) {
   req.message("hello from middleware!");
-  next();
+  next(); 
 }
 
 // register the middlewares;
