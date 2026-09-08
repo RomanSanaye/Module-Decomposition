@@ -5,8 +5,14 @@ const app = express();
 const PORT = process.env.PORT || 4001;
 
 // Custom middleware
-function logger(req, res, next) {
-  console.log(`${req.method} ${req.url}`);
+function checkAuth(req, res, next) {
+  const isLoggedIn = true;
+
+  if (!isLoggedIn) {
+    res.status(401).send("You must be logged in.");
+    return;
+  }
+
   next();
 }
 
@@ -14,11 +20,11 @@ function logger(req, res, next) {
 app.use(cors());
 
 // Register custom middleware
-app.use(logger);
+app.use(checkAuth);
 
 // Route
 app.get("/", (req, res) => {
-  res.send("Hello from Express!");
+  res.send("Welcome !");
 });
 
 // Run the server

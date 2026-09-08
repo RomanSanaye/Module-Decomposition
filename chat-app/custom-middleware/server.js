@@ -4,24 +4,33 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 // first middleware;
-function logger(req, res, next) {
-  console.log(`${req.method} ${req.url}`);
+function checkAuth(req, res, next) {
+  const isLoggedIn = true;
+
+  if (!isLoggedIn) {
+    res.status(401).send("You must be logged in.");
+    return;
+  }
+
   next();
 }
 
 // second middleware: add message to the request;
-function addMessage(req, res, next) {
-  req.message("hello from middleware!");
-  next(); 
+function addUser(req, res, next) {
+  req.user = {
+    name: "Roman",
+    role: "trainee",
+  };
+  next();
 }
 
 // register the middlewares;
-app.use(logger);
-app.use(addMessage);
+app.use(checkAuth);
+app.use(addUser);
 
-// Route: if any get request then: send message to frontend;
+// Route ==> if any get request: give user information to frontend;
 app.get("/", (req, res) => {
-  res.send(req.message);
+  res.send(`Hello and welcome ${req.user.name}`);
 });
 
 // run the server;
