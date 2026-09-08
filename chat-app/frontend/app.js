@@ -5,6 +5,7 @@ const sendButton = document.getElementById("send-button");
 
 let lastMessageId = -1;
 let clientId = localStorage.getItem("clientId");
+const API_URL = "https://x2fkdg4qtvw2zk6tfpgmud7g.trainees.hosting.cyf.academy";
 
 if (!clientId) {
   clientId = crypto.randomUUID();
@@ -82,9 +83,7 @@ function createMessageElement(message) {
 
 // Get messages from server
 async function getMessages() {
-  const response = await fetch(
-    `https://x2fkdg4qtvw2zk6tfpgmud7g.trainees.hosting.cyf.academy/messages?since=${lastMessageId}`,
-  );
+  const response = await fetch(`${API_URL}/messages?since=${lastMessageId}`);
 
   const messages = await response.json();
 
@@ -106,18 +105,15 @@ async function getMessages() {
 
 // React to message
 async function reactToMessage(messageId, reaction) {
-  await fetch(
-    `https://x2fkdg4qtvw2zk6tfpgmud7g.trainees.hosting.cyf.academy/messages/${messageId}/reaction`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        reaction: reaction,
-      }),
+  await fetch(`${API_URL}/messages/${messageId}/reaction`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
-  );
+    body: JSON.stringify({
+      reaction: reaction,
+    }),
+  });
 }
 
 // Update reaction: like / dislike
@@ -143,9 +139,7 @@ sendButton.addEventListener("click", async () => {
     return;
   }
 
-  await fetch(
-    "https://x2fkdg4qtvw2zk6tfpgmud7g.trainees.hosting.cyf.academy/messages",
-
+  await fetch(`${API_URL}/messages`,
     {
       method: "POST",
       headers: {
